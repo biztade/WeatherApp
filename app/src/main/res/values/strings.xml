@@ -1,3 +1,12 @@
 <resources>
-    <string name="app_name">weatherApp</string>
+    <string name="app_name">WeatherApp</string>
+    <string name="location">St. Paul, MN</string>
+    <string name="updated_at">Updated: May 1, 2025 4:30 PM</string>
+    <string name="temperature">72°</string>
+    <string name="feels_like">Feels like 78°</string>
+    <string name="weather_status">Partly Cloudy</string>
+    <string name="temp_range">Low 65°  |  High 80°</string>
+    <string name="humidity">Humidity: 100%</string>
+    <string name="pressure">Pressure: 1023 hPa</string>
+    <string name="error_message">Something went wrong</string>
 </resources>
