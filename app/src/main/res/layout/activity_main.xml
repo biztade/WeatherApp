@@ -28,10 +28,10 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
-        android:hint="@string/enter_zip_code"
+        android:hint="@string/enter_zipcode"
         app:layout_constraintTop_toBottomOf="@id/app_title"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/viewForecastButton">
+        app:layout_constraintEnd_toStartOf="@id/locationButton">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/zipCodeInput"
@@ -42,18 +42,32 @@
             android:maxLength="5" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <ImageButton
+        android:id="@+id/locationButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/my_location"
+        android:src="@drawable/ic_location"
+        app:layout_constraintEnd_toStartOf="@id/searchButton"
+        app:layout_constraintStart_toEndOf="@id/zipCodeInputLayout"
+        app:layout_constraintTop_toTopOf="@id/zipCodeInputLayout"
+        app:tint="?attr/colorPrimary" />
+
     <Button
-        android:id="@+id/viewForecastButton"
+        android:id="@+id/searchButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/view_forecast"
-        app:layout_constraintTop_toTopOf="@id/zipCodeInputLayout"
-        app:layout_constraintBottom_toBottomOf="@id/zipCodeInputLayout"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:layout_marginStart="8dp"
+        android:text="@string/search"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/locationButton"
+        app:layout_constraintTop_toTopOf="@id/zipCodeInputLayout" />
 
     <!-- Address and Time -->
     <TextView
-        android:id="@+id/address"
+        android:id="@+id/locationText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="24sp"
@@ -72,7 +86,7 @@
         android:textColor="@android:color/white"
         android:text="@string/updated_at"
         android:layout_marginTop="4dp"
-        app:layout_constraintTop_toBottomOf="@id/address"
+        app:layout_constraintTop_toBottomOf="@id/locationText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -91,7 +105,7 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
-        android:id="@+id/temp"
+        android:id="@+id/temperatureText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-light"
@@ -111,12 +125,12 @@
         android:textColor="@android:color/white"
         android:textSize="16sp"
         android:layout_marginTop="4dp"
-        app:layout_constraintTop_toBottomOf="@id/temp"
+        app:layout_constraintTop_toBottomOf="@id/temperatureText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
-        android:id="@+id/status"
+        android:id="@+id/weatherConditionText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/weather_status"
@@ -135,7 +149,7 @@
         android:textColor="@android:color/white"
         android:textSize="14sp"
         android:layout_marginTop="4dp"
-        app:layout_constraintTop_toBottomOf="@id/status"
+        app:layout_constraintTop_toBottomOf="@id/weatherConditionText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -150,7 +164,7 @@
         app:layout_constraintTop_toBottomOf="@id/temp_range">
 
         <TextView
-            android:id="@+id/humidity"
+            android:id="@+id/humidityText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -160,7 +174,7 @@
             android:gravity="center" />
 
         <TextView
-            android:id="@+id/pressure"
+            android:id="@+id/windSpeedText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -191,6 +205,16 @@
         android:text="@string/error_message"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/forecastButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/forecast"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/detailsContainer"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.weatherapp"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -34,6 +34,9 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    buildFeatures {
+        viewBinding = true
+    }
     lint {
         baseline = file("lint-baseline.xml")
     }
@@ -53,6 +56,9 @@ dependencies {
     // ViewModel and LiveData
     implementation(libs.viewmodel)
     implementation(libs.livedata)
+    
+    // Location Services
+    implementation("com.google.android.gms:play-services-location:21.2.0")
     
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

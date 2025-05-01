@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">WeatherApp</string>
+    <string name="app_name">Weather App</string>
     <string name="location">St. Paul, MN</string>
     <string name="updated_at">Updated: %1$s</string>
     <string name="temperature">%1$d°</string>
@@ -10,6 +11,20 @@
     <string name="pressure">Pressure: %1$d hPa</string>
     <string name="error_message">Something went wrong</string>
     <string name="weather_icon_description">Weather icon</string>
+    <string name="enter_zipcode">Enter Zip Code</string>
+    <string name="search">Search</string>
+    <string name="forecast">Forecast</string>
+    <string name="current_weather">Current Weather</string>
+    <string name="wind_speed">Wind Speed</string>
+    <string name="weather_condition">Weather Condition</string>
+    <string name="location_permission_required">Location permission is required for this feature</string>
+    <string name="notification_permission_required">Notification permission is required for weather updates</string>
+    <string name="my_location">My Location</string>
+    <string name="weather_notification_title">Current Weather</string>
+    <string name="weather_notification_channel_name">Weather Updates</string>
+    <string name="weather_notification_channel_description">Shows current weather information</string>
+    <string name="location_service_notification_title">Weather App</string>
+    <string name="location_service_notification_text">Getting weather updates for your location</string>
     <string name="enter_zip_code">Enter ZIP Code</string>
     <string name="view_forecast">View Forecast</string>
     <string name="invalid_zip_code">Please enter a valid 5-digit ZIP code</string>
