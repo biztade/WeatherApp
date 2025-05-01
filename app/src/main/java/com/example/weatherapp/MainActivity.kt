@@ -1,24 +1,59 @@
 package com.example.weatherapp
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.weatherapp.data.WeatherResponse
+import com.example.weatherapp.ui.ForecastActivity
 import com.example.weatherapp.viewmodel.WeatherViewModel
+import com.example.weatherapp.viewmodel.WeatherViewModelFactory
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: WeatherViewModel
+    private lateinit var zipCodeInput: TextInputEditText
+    private lateinit var zipCodeInputLayout: TextInputLayout
+    private lateinit var viewForecastButton: Button
+    private lateinit var loader: ProgressBar
+    private lateinit var errorText: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        viewModel = ViewModelProvider(this).get(WeatherViewModel::class.java)
+        // Initialize views
+        zipCodeInput = findViewById(R.id.zipCodeInput)
+        zipCodeInputLayout = findViewById(R.id.zipCodeInputLayout)
+        viewForecastButton = findViewById(R.id.viewForecastButton)
+        loader = findViewById(R.id.loader)
+        errorText = findViewById(R.id.errorText)
+
+        // Initialize ViewModel
+        val factory = WeatherViewModelFactory()
+        viewModel = ViewModelProvider(this, factory)[WeatherViewModel::class.java]
+
+        // Setup forecast button click listener
+        viewForecastButton.setOnClickListener {
+            val zipCode = zipCodeInput.text.toString()
+            if (isValidZipCode(zipCode)) {
+                val intent = Intent(this, ForecastActivity::class.java).apply {
+                    putExtra("zip_code", zipCode)
+                }
+                startActivity(intent)
+            } else {
+                zipCodeInputLayout.error = getString(R.string.invalid_zip_code)
+            }
+        }
 
         // Observe weather data
         viewModel.weatherData.observe(this) { weather ->
@@ -27,19 +62,28 @@ class MainActivity : AppCompatActivity() {
 
         // Observe loading state
         viewModel.isLoading.observe(this) { isLoading ->
-            findViewById<View>(R.id.loader).visibility = if (isLoading) View.VISIBLE else View.GONE
+            loader.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
         // Observe errors
         viewModel.error.observe(this) { error ->
-            findViewById<TextView>(R.id.errorText).apply {
-                text = error
-                visibility = View.VISIBLE
+            error?.let {
+                showErrorDialog(it)
+                errorText.apply {
+                    text = it
+                    visibility = View.VISIBLE
+                }
+            } ?: run {
+                errorText.visibility = View.GONE
             }
         }
 
-        // For now, hardcode the city and API key
-        viewModel.fetchWeather("St. Paul", "7eca67a15ebf3fc6374e4527a6f8a0fe")
+        // Load initial weather data
+        viewModel.loadWeather("New York", getString(R.string.api_key))
+    }
+
+    private fun isValidZipCode(zipCode: String): Boolean {
+        return zipCode.length == 5 && zipCode.all { it.isDigit() }
     }
 
     private fun updateUI(weather: WeatherResponse) {
@@ -89,5 +133,13 @@ class MainActivity : AppCompatActivity() {
             R.string.pressure,
             weather.main.pressure
         )
+    }
+
+    private fun showErrorDialog(message: String) {
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.error_dialog_title))
+            .setMessage(message)
+            .setPositiveButton(getString(R.string.error_dialog_ok)) { dialog, _ -> dialog.dismiss() }
+            .show()
     }
 } 

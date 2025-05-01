@@ -24,6 +24,11 @@
             </intent-filter>
         </activity>
         
+        <activity
+            android:name=".ui.ForecastActivity"
+            android:exported="false"
+            android:label="@string/forecast_title" />
+        
     </application>
 
 </manifest>
