@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.kotlinx.serialization)
     implementation(libs.kotlinx.serialization.json)
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     
     // ViewModel and LiveData
     implementation(libs.viewmodel)

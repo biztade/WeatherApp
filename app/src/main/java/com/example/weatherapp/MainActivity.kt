@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.example.weatherapp.data.WeatherResponse
 import com.example.weatherapp.viewmodel.WeatherViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -17,7 +18,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        viewModel = ViewModelProvider(this)[WeatherViewModel::class.java]
+        viewModel = ViewModelProvider(this).get(WeatherViewModel::class.java)
 
         // Observe weather data
         viewModel.weatherData.observe(this) { weather ->
@@ -67,7 +68,7 @@ class MainActivity : AppCompatActivity() {
         // Update weather status
         findViewById<TextView>(R.id.status).text = getString(
             R.string.weather_status,
-            weather.weather.firstOrNull()?.description?.capitalize() ?: ""
+            weather.weather.firstOrNull()?.description?.replaceFirstChar { it.uppercase() } ?: ""
         )
 
         // Update temperature range

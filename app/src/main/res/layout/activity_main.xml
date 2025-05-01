@@ -60,8 +60,9 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:src="@drawable/sun"
+            android:tint="@android:color/white"
             app:tint="@android:color/white"
-            android:contentDescription="Weather icon"
+            android:contentDescription="@string/weather_icon_description"
             android:layout_marginBottom="16dp" />
 
         <TextView

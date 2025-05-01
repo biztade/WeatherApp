@@ -9,4 +9,5 @@
     <string name="humidity">Humidity: %1$d%%</string>
     <string name="pressure">Pressure: %1$d hPa</string>
     <string name="error_message">Something went wrong</string>
+    <string name="weather_icon_description">Weather icon</string>
 </resources>
