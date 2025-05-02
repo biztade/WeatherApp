@@ -10,4 +10,12 @@
     <string name="pressure">Pressure: %1$d hPa</string>
     <string name="error_message">Something went wrong</string>
     <string name="weather_icon_description">Weather icon</string>
+    <string name="enter_zip_code">Enter ZIP Code</string>
+    <string name="view_forecast">View Forecast</string>
+    <string name="invalid_zip_code">Please enter a valid 5-digit ZIP code</string>
+    <string name="forecast_title">16-Day Forecast</string>
+    <string name="api_key">7eca67a15ebf3fc6374e4527a6f8a0fe</string>
+    <string name="error_dialog_title">Error</string>
+    <string name="error_dialog_ok">OK</string>
+    <string name="error_invalid_zip">Invalid ZIP code. Please enter a valid 5-digit ZIP code.</string>
 </resources>

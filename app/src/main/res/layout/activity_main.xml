@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="25dp"
+    android:padding="16dp"
     android:background="@drawable/gradient_bg">
 
     <!-- App Title -->
@@ -16,127 +16,158 @@
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@android:color/white"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:paddingBottom="10dp" />
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Zip Code Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/zipCodeInputLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:hint="@string/enter_zip_code"
+        app:layout_constraintTop_toBottomOf="@id/app_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/viewForecastButton">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/zipCodeInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:digits="0123456789"
+            android:maxLength="5" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/viewForecastButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/view_forecast"
+        app:layout_constraintTop_toTopOf="@id/zipCodeInputLayout"
+        app:layout_constraintBottom_toBottomOf="@id/zipCodeInputLayout"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Address and Time -->
-    <LinearLayout
-        android:id="@+id/addressContainer"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/address"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_below="@id/app_title"
-        android:gravity="center">
+        android:textSize="24sp"
+        android:textColor="@android:color/white"
+        android:text="@string/location"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/zipCodeInputLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <TextView
-            android:id="@+id/address"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="24sp"
-            android:textColor="@android:color/white"
-            android:text="@string/location" />
-
-        <TextView
-            android:id="@+id/updated_at"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="@android:color/white"
-            android:text="@string/updated_at" />
-    </LinearLayout>
-
-    <!-- Main Temperature and Weather Info -->
-    <LinearLayout
-        android:id="@+id/overviewContainer"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/updated_at"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_centerInParent="true"
-        android:gravity="center">
+        android:textSize="14sp"
+        android:textColor="@android:color/white"
+        android:text="@string/updated_at"
+        android:layout_marginTop="4dp"
+        app:layout_constraintTop_toBottomOf="@id/address"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <ImageView
-            android:id="@+id/weather_icon"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:src="@drawable/sun"
-            android:tint="@android:color/white"
-            app:tint="@android:color/white"
-            android:contentDescription="@string/weather_icon_description"
-            android:layout_marginBottom="16dp" />
+    <!-- Main Weather Info -->
+    <ImageView
+        android:id="@+id/weather_icon"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/sun"
+        android:tint="@android:color/white"
+        app:tint="@android:color/white"
+        android:contentDescription="@string/weather_icon_description"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/updated_at"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <TextView
-            android:id="@+id/temp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-light"
-            android:text="@string/temperature"
-            android:textColor="@android:color/white"
-            android:textSize="72sp" />
+    <TextView
+        android:id="@+id/temp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-light"
+        android:text="@string/temperature"
+        android:textColor="@android:color/white"
+        android:textSize="72sp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/weather_icon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <TextView
-            android:id="@+id/feels_like"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/feels_like"
-            android:textColor="@android:color/white"
-            android:textSize="16sp" />
+    <TextView
+        android:id="@+id/feels_like"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/feels_like"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:layout_marginTop="4dp"
+        app:layout_constraintTop_toBottomOf="@id/temp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <TextView
-            android:id="@+id/status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/weather_status"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            android:paddingTop="8dp" />
+    <TextView
+        android:id="@+id/status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/weather_status"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/feels_like"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <TextView
-            android:id="@+id/temp_range"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/temp_range"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-            android:paddingTop="4dp" />
-    </LinearLayout>
+    <TextView
+        android:id="@+id/temp_range"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/temp_range"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        android:layout_marginTop="4dp"
+        app:layout_constraintTop_toBottomOf="@id/status"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Weather Details -->
     <LinearLayout
         android:id="@+id/detailsContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:orientation="vertical"
-        android:paddingTop="12dp">
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/temp_range">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/humidity"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:weightSum="2">
+            android:layout_weight="1"
+            android:text="@string/humidity"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:gravity="center" />
 
-            <TextView
-                android:id="@+id/humidity"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/humidity"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
-                android:gravity="center" />
-
-            <TextView
-                android:id="@+id/pressure"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/pressure"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
-                android:gravity="center" />
-        </LinearLayout>
+        <TextView
+            android:id="@+id/pressure"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/pressure"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:gravity="center" />
     </LinearLayout>
 
     <!-- Loader -->
@@ -144,17 +175,23 @@
         android:id="@+id/loader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
         android:visibility="gone"
-        style="?android:attr/progressBarStyleSmall" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Error Message -->
     <TextView
         android:id="@+id/errorText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
         android:visibility="gone"
         android:textColor="@android:color/white"
-        android:text="@string/error_message" />
-</RelativeLayout>
+        android:text="@string/error_message"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
