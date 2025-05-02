@@ -1,5 +1,6 @@
 package com.example.weatherapp.network
 
+import com.example.weatherapp.api.WeatherService
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -16,7 +17,7 @@ object RetrofitClient {
         .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
         .build()
 
-    val weatherService: WeatherService = retrofit.create(WeatherService::class.java)
+    val weatherService: WeatherService = WeatherService.create()
 
     fun getApiUrl(endpoint: String, params: Map<String, String>): String {
         val paramString = params.entries.joinToString("&") { "${it.key}=${it.value}" }

@@ -1,12 +1,16 @@
 package com.example.weatherapp.service
 
+import android.Manifest
 import android.app.*
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Build
 import android.os.IBinder
 import android.os.Looper
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.weatherapp.MainActivity
 import com.example.weatherapp.R
 import com.example.weatherapp.data.WeatherResponse
@@ -29,7 +33,16 @@ class LocationService : Service() {
         super.onCreate()
         createNotificationChannel()
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        setupLocationCallback()
+        
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                locationResult.lastLocation?.let { location ->
+                    currentLocation = location
+                    getWeatherForLocation(location)
+                    stopLocationUpdates()
+                }
+            }
+        }
     }
 
     private fun createNotificationChannel() {
@@ -46,50 +59,61 @@ class LocationService : Service() {
         }
     }
 
-    private fun setupLocationCallback() {
-        locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                locationResult.lastLocation?.let { location ->
-                    currentLocation = location
-                    updateWeatherNotification(location)
-                }
-            }
-        }
-    }
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         startForeground(NOTIFICATION_ID, createServiceNotification())
-        startLocationUpdates()
+        requestLocationUpdates()
         return START_STICKY
     }
 
-    private fun startLocationUpdates() {
-        val locationRequest = LocationRequest.Builder(300000) // 5 minutes
-            .setPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY)
-            .build()
+    private fun requestLocationUpdates() {
+        val locationRequest = LocationRequest.create().apply {
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            interval = 10000 // 10 seconds
+            fastestInterval = 5000 // 5 seconds
+        }
 
-        try {
-            fusedLocationClient.requestLocationUpdates(
-                locationRequest,
-                locationCallback,
-                Looper.getMainLooper()
-            )
-        } catch (e: SecurityException) {
-            // Handle permission not granted
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        )
+    }
+
+    private fun getWeatherForLocation(location: Location) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = weatherService.getCurrentWeather(
+                    "${location.latitude},${location.longitude}",
+                    RetrofitClient.API_KEY
+                )
+                
+                val intent = Intent("weather-update")
+                intent.putExtra("weather", response)
+                LocalBroadcastManager.getInstance(this@LocationService)
+                    .sendBroadcast(intent)
+            } catch (e: Exception) {
+                val intent = Intent("weather-error")
+                intent.putExtra("error", e.message)
+                LocalBroadcastManager.getInstance(this@LocationService)
+                    .sendBroadcast(intent)
+            }
         }
     }
 
-    private fun updateWeatherNotification(location: Location) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val weather = weatherService.getWeatherByLocation(location.latitude, location.longitude)
-                withContext(Dispatchers.Main) {
-                    showWeatherNotification(weather)
-                }
-            } catch (e: Exception) {
-                // Handle error
-            }
-        }
+    private fun stopLocationUpdates() {
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+        stopSelf()
     }
 
     private fun showWeatherNotification(weather: WeatherResponse) {

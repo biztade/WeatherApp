@@ -32,6 +32,15 @@ interface WeatherService {
         @Query("cnt") count: Int = 16
     ): ForecastResponse
 
+    @GET("data/2.5/forecast/daily")
+    suspend fun getForecastByLocation(
+        @Query("lat") latitude: Double,
+        @Query("lon") longitude: Double,
+        @Query("appid") apiKey: String,
+        @Query("units") units: String = "imperial",
+        @Query("cnt") count: Int = 16
+    ): ForecastResponse
+
     companion object {
         fun create(): WeatherService {
             val json = Json { ignoreUnknownKeys = true }
