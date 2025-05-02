@@ -32,4 +32,20 @@ class ForecastViewModel(private val weatherService: WeatherService) : ViewModel(
             }
         }
     }
+
+    // For location-based forecasts
+    fun getForecastByLocation(latitude: Double, longitude: Double, apiKey: String) {
+        viewModelScope.launch {
+            try {
+                _isLoading.value = true
+                _error.value = null
+                val response = weatherService.getForecastByLocation(latitude, longitude, apiKey)
+                _forecastData.value = response
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Failed to load forecast"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
 } 

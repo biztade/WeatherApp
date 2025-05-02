@@ -6,10 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.weatherapp.data.WeatherResponse
+import com.example.weatherapp.api.WeatherService
 import com.example.weatherapp.network.RetrofitClient
 import kotlinx.coroutines.launch
 
-class WeatherViewModel : ViewModel() {
+class WeatherViewModel(private val weatherService: WeatherService) : ViewModel() {
     private val _weather = MutableLiveData<WeatherResponse>()
     val weather: LiveData<WeatherResponse> = _weather
 
@@ -19,14 +20,12 @@ class WeatherViewModel : ViewModel() {
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    private val weatherService = RetrofitClient.weatherService
-
     fun getWeather(zipCode: String) {
         viewModelScope.launch {
             try {
                 _isLoading.value = true
                 _error.value = null
-                val response = weatherService.getWeather(zipCode)
+                val response = weatherService.getCurrentWeatherByZip(zipCode, RetrofitClient.API_KEY)
                 _weather.value = response
             } catch (e: Exception) {
                 _error.value = e.message ?: "An error occurred"
@@ -41,7 +40,7 @@ class WeatherViewModel : ViewModel() {
             try {
                 _isLoading.value = true
                 _error.value = null
-                val response = weatherService.getWeatherByLocation(latitude, longitude)
+                val response = weatherService.getCurrentWeather("$latitude,$longitude", RetrofitClient.API_KEY)
                 _weather.value = response
             } catch (e: Exception) {
                 _error.value = e.message ?: "An error occurred"
@@ -52,11 +51,11 @@ class WeatherViewModel : ViewModel() {
     }
 }
 
-class WeatherViewModelFactory : ViewModelProvider.Factory {
+class WeatherViewModelFactory(private val weatherService: WeatherService) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(WeatherViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return WeatherViewModel() as T
+            return WeatherViewModel(weatherService) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
