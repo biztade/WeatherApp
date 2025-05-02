@@ -1,145 +1,159 @@
 package com.example.weatherapp
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
-import android.widget.ProgressBar
-import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
-import com.example.weatherapp.data.WeatherResponse
+import com.example.weatherapp.databinding.ActivityMainBinding
+import com.example.weatherapp.service.LocationService
 import com.example.weatherapp.ui.ForecastActivity
 import com.example.weatherapp.viewmodel.WeatherViewModel
-import com.example.weatherapp.viewmodel.WeatherViewModelFactory
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: WeatherViewModel
-    private lateinit var zipCodeInput: TextInputEditText
-    private lateinit var zipCodeInputLayout: TextInputLayout
-    private lateinit var viewForecastButton: Button
-    private lateinit var loader: ProgressBar
-    private lateinit var errorText: TextView
+
+    private val locationPermissionRequest = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        when {
+            permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) ||
+            permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
+                // Location permission granted
+                startLocationService()
+            }
+            else -> {
+                Toast.makeText(
+                    this,
+                    R.string.location_permission_required,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+    private val notificationPermissionRequest = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (!isGranted) {
+            Toast.makeText(
+                this,
+                R.string.notification_permission_required,
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        // Initialize views
-        zipCodeInput = findViewById(R.id.zipCodeInput)
-        zipCodeInputLayout = findViewById(R.id.zipCodeInputLayout)
-        viewForecastButton = findViewById(R.id.viewForecastButton)
-        loader = findViewById(R.id.loader)
-        errorText = findViewById(R.id.errorText)
+        viewModel = ViewModelProvider(this)[WeatherViewModel::class.java]
 
-        // Initialize ViewModel
-        val factory = WeatherViewModelFactory()
-        viewModel = ViewModelProvider(this, factory)[WeatherViewModel::class.java]
+        setupUI()
+        observeViewModel()
+    }
 
-        // Setup forecast button click listener
-        viewForecastButton.setOnClickListener {
-            val zipCode = zipCodeInput.text.toString()
-            if (isValidZipCode(zipCode)) {
+    private fun setupUI() {
+        binding.searchButton.setOnClickListener {
+            val zipCode = binding.zipCodeInput.text.toString()
+            if (zipCode.isNotEmpty()) {
+                viewModel.getWeather(zipCode)
+            }
+        }
+
+        binding.locationButton.setOnClickListener {
+            checkAndRequestPermissions()
+        }
+
+        binding.forecastButton.setOnClickListener {
+            val zipCode = binding.zipCodeInput.text.toString()
+            if (zipCode.isNotEmpty()) {
                 val intent = Intent(this, ForecastActivity::class.java).apply {
                     putExtra("zip_code", zipCode)
                 }
                 startActivity(intent)
-            } else {
-                zipCodeInputLayout.error = getString(R.string.invalid_zip_code)
+            }
+        }
+    }
+
+    private fun checkAndRequestPermissions() {
+        when {
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                startLocationService()
+            }
+            else -> {
+                locationPermissionRequest.launch(
+                    arrayOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    )
+                )
             }
         }
 
-        // Observe weather data
-        viewModel.weatherData.observe(this) { weather ->
-            updateUI(weather)
-        }
-
-        // Observe loading state
-        viewModel.isLoading.observe(this) { isLoading ->
-            loader.visibility = if (isLoading) View.VISIBLE else View.GONE
-        }
-
-        // Observe errors
-        viewModel.error.observe(this) { error ->
-            error?.let {
-                showErrorDialog(it)
-                errorText.apply {
-                    text = it
-                    visibility = View.VISIBLE
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    // Notification permission already granted
                 }
+                else -> {
+                    notificationPermissionRequest.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        }
+    }
+
+    private fun startLocationService() {
+        val serviceIntent = Intent(this, LocationService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent)
+        } else {
+            startService(serviceIntent)
+        }
+    }
+
+    private fun observeViewModel() {
+        viewModel.weather.observe(this) { weather ->
+            binding.loader.visibility = View.GONE
+            binding.errorText.visibility = View.GONE
+
+            binding.locationText.text = weather.name
+            binding.temperatureText.text = "${weather.main.temp.toInt()}°F"
+            binding.weatherConditionText.text = weather.weather.firstOrNull()?.main ?: ""
+            binding.humidityText.text = "${weather.main.humidity}%"
+            binding.windSpeedText.text = "${weather.wind.speed} mph"
+        }
+
+        viewModel.error.observe(this) { error ->
+            binding.loader.visibility = View.GONE
+            error?.let {
+                binding.errorText.text = it
+                binding.errorText.visibility = View.VISIBLE
             } ?: run {
-                errorText.visibility = View.GONE
+                binding.errorText.visibility = View.GONE
             }
         }
 
-        // Load initial weather data
-        viewModel.loadWeather("New York", getString(R.string.api_key))
-    }
-
-    private fun isValidZipCode(zipCode: String): Boolean {
-        return zipCode.length == 5 && zipCode.all { it.isDigit() }
-    }
-
-    private fun updateUI(weather: WeatherResponse) {
-        // Update location
-        findViewById<TextView>(R.id.address).text = weather.name
-
-        // Update time
-        val dateFormat = SimpleDateFormat("MMM d, yyyy h:mm a", Locale.getDefault())
-        findViewById<TextView>(R.id.updated_at).text = getString(
-            R.string.updated_at,
-            dateFormat.format(Date(weather.dt * 1000))
-        )
-
-        // Update temperature
-        findViewById<TextView>(R.id.temp).text = getString(
-            R.string.temperature,
-            weather.main.temp.toInt()
-        )
-
-        // Update feels like
-        findViewById<TextView>(R.id.feels_like).text = getString(
-            R.string.feels_like,
-            weather.main.feelsLike.toInt()
-        )
-
-        // Update weather status
-        findViewById<TextView>(R.id.status).text = getString(
-            R.string.weather_status,
-            weather.weather.firstOrNull()?.description?.replaceFirstChar { it.uppercase() } ?: ""
-        )
-
-        // Update temperature range
-        findViewById<TextView>(R.id.temp_range).text = getString(
-            R.string.temp_range,
-            weather.main.tempMin.toInt(),
-            weather.main.tempMax.toInt()
-        )
-
-        // Update humidity
-        findViewById<TextView>(R.id.humidity).text = getString(
-            R.string.humidity,
-            weather.main.humidity
-        )
-
-        // Update pressure
-        findViewById<TextView>(R.id.pressure).text = getString(
-            R.string.pressure,
-            weather.main.pressure
-        )
-    }
-
-    private fun showErrorDialog(message: String) {
-        AlertDialog.Builder(this)
-            .setTitle(getString(R.string.error_dialog_title))
-            .setMessage(message)
-            .setPositiveButton(getString(R.string.error_dialog_ok)) { dialog, _ -> dialog.dismiss() }
-            .show()
+        viewModel.isLoading.observe(this) { isLoading ->
+            binding.loader.visibility = if (isLoading) View.VISIBLE else View.GONE
+        }
     }
 } 
